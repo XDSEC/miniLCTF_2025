@@ -1,0 +1,97 @@
+extends layout
+
+block content
+  h1 猜数字游戏 (1-100)
+  div#game-area
+    div#score-container(style="margin-bottom: 10px; font-weight: bold; font-size: 1.2em")
+      | 当前分数:
+      span#score-display 0
+    input(type="number" id="guess-input" min="1" max="100" placeholder="输入数字")
+    button(id="guess-btn") 猜！
+    div#status 正在连接游戏服务器...
+    div#result
+    div#flag-display(style="color: red; font-weight: bold; margin-top: 20px; display: none")
+
+block scripts
+  script.
+    document.addEventListener('DOMContentLoaded', () => {
+      const resultDiv = document.getElementById('result');
+      const statusDiv = document.getElementById('status');
+      const guessBtn = document.getElementById('guess-btn');
+      const guessInput = document.getElementById('guess-input');
+      const scoreDisplay = document.getElementById('score-display');
+      const flagDisplay = document.getElementById('flag-display');
+
+   
+      const socket = io();
+
+    
+      socket.on('connect', () => {
+        statusDiv.textContent = "已连接到游戏服务器！";
+        guessBtn.disabled = false;
+      });
+
+      socket.on('disconnect', () => {
+        statusDiv.textContent = "与服务器断开连接";
+        guessBtn.disabled = true;
+      });
+
+      
+      socket.on('game-message', (data) => {
+     
+        if(data.score !== undefined) {
+          scoreDisplay.textContent = data.score;
+        }
+
+        switch(data.type) {
+          case 'welcome':
+            resultDiv.innerHTML = `<span style="color:blue">${data.message}</span>`;
+            break;
+          case 'result':
+            resultDiv.innerHTML = data.win
+              ? `<span style="color:green">${data.message}</span>`
+              : `<span>${data.message}</span>`;
+
+            if(data.win) {
+              guessInput.disabled = true;
+              guessBtn.disabled = true;
+
+          
+              setTimeout(() => {
+                guessInput.disabled = false;
+                guessBtn.disabled = false;
+                guessInput.value = '';
+                guessInput.focus();
+              }, 1500);
+
+        
+              if(data.showFlag) {
+                flagDisplay.style.display = 'block';
+                flagDisplay.textContent = data.message.split('\n')[1]; 
+              }
+            }
+            break;
+          case 'error':
+            resultDiv.innerHTML = `<span style="color:red">错误: ${data.message}</span>`;
+            break;
+        }
+      });
+      socket.on("punishment", (data) => {
+        socket.emit("punishment-response", { score: scoreDisplay.textContent} );
+      })
+
+
+      guessBtn.addEventListener('click', () => {
+        if(!guessInput.value) {
+          resultDiv.innerHTML = '<span style="color:red">请输入数字</span>';
+          return;
+        }
+        socket.emit('guess', { value: guessInput.value });
+        guessInput.value = '';
+      });
+
+
+      guessInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') guessBtn.click();
+      });
+    });
