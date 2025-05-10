@@ -1,0 +1,16 @@
+doctype html
+html
+  head
+    title= title
+    script(src="/socket.io/socket.io.js")
+    style.
+      body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+      #game-area { margin-top: 30px; }
+      #result, #status { min-height: 24px; padding: 10px; margin: 10px 0; }
+      #status { background: #f0f0f0; }
+      #guess-input { padding: 8px; width: 100px; }
+      #guess-btn { padding: 8px 16px; }
+
+  body
+    block content
+    block scripts
