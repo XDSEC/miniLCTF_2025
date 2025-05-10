@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  web:
+    build: .              # 使用当前目录的 Dockerfile 构建镜像
+    ports:
+      - "8081:8081"       # 宿主机的 3000 端口映射到容器的 3000 端口
+    environment:
+      - FLAG=miniLCTF{test_env}
