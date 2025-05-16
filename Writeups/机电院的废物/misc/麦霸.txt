@@ -1,0 +1,23 @@
+// 在浏览器控制台执行这段代码
+// 1. 先获取原始音频
+fetch('/original.wav')
+  .then(response => response.blob())
+  .then(blob => {
+    // 2. 创建表单数据
+    const formData = new FormData();
+    formData.append('audio', blob, 'recording.wav');
+    
+    // 3. 发送到比较端点
+    return fetch('/compare-recording', {
+      method: 'POST',
+      body: formData
+    });
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("匹配结果:", data);
+    if(data.flag) {
+      alert("FLAG: " + data.flag);
+    }
+  })
+  .catch(error => console.error("出错了:", error));

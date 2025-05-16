@@ -1,0 +1,10 @@
+首先设置point.amount = null，触发服务器的条件判断，删除了point.amount属性
+同时通过constructor.prototype修改了对象原型链上的amount属性，将其值设为10000
+
+漏洞利用过程：
+
+服务器接收到请求，发现req.body.point.amount为null
+服务器执行delete req.body.point.amount删除这个属性
+后续代码访问point.amount时，由于本身属性已被删除，JavaScript引擎会查找原型链
+在原型链上找到了被我们污染的amount属性，值为10000
+服务器代码检测到amount值为10000，认为用户已完成挑战，返回flag
